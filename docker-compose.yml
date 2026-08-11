@@ -1,0 +1,13 @@
+services:
+  mtpsync:
+    build: .
+    image: ghcr.io/matu-tr/mtp-sync:latest
+    container_name: mtpsync
+    restart: unless-stopped
+    environment:
+      POLL_INTERVAL_MINUTES: "${POLL_INTERVAL_MINUTES:-15}"
+      DB_PATH: "/data/mtpsync.db"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/data
