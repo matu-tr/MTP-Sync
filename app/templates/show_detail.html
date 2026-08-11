@@ -59,7 +59,7 @@
           <td>{{ ep.viewed_at.strftime("%Y-%m-%d") if ep.viewed_at else "" }}</td>
           <td>
             {% if ep.watched %}
-            <form method="post" action="/history/delete-episode" onsubmit="return confirm('Delete this episode from watch history?');">
+            <form method="post" action="/history/delete-episode" data-confirm="Delete this episode from watch history?">
               <input type="hidden" name="item_key" value="{{ ep.item_key }}">
               <button type="submit" class="del-btn">Delete</button>
             </form>
@@ -71,5 +71,7 @@
     </table>
   </div>
   {% endfor %}
+
+  {% include "_confirm_dialog.html" %}
 </body>
 </html>

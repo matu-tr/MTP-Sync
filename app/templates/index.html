@@ -76,7 +76,7 @@
   <div class="grid">
     {% for row in rows %}
     <div class="card">
-      <form class="delete-form" method="post" action="/history/delete" onsubmit="return confirm('Delete watch history for {{ row.title }}?');">
+      <form class="delete-form" method="post" action="/history/delete" data-confirm="Delete watch history for {{ row.title }}?">
         <input type="hidden" name="media_type" value="{{ row.media_type }}">
         <input type="hidden" name="key" value="{{ row.key }}">
         <button type="submit" class="delete-btn" title="Delete from history">&times;</button>
@@ -129,5 +129,7 @@
   </div>
 
   {% endif %}
+
+  {% include "_confirm_dialog.html" %}
 </body>
 </html>

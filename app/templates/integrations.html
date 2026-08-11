@@ -61,7 +61,7 @@
         <div class="provider">{{ integration.provider }}</div>
         <div class="name">{{ integration.display_name }}</div>
       </div>
-      <form method="post" action="/integrations/{{ integration.id }}/disconnect" onsubmit="return confirm('Disconnect this account? Its watch history will be deleted.');">
+      <form method="post" action="/integrations/{{ integration.id }}/disconnect" data-confirm="Disconnect this account? Its watch history will be deleted.">
         <button type="submit">Disconnect</button>
       </form>
     </div>
@@ -84,5 +84,7 @@
     </form>
     {% if tmdb_api_key %}<div class="status">Configured.</div>{% endif %}
   </div>
+
+  {% include "_confirm_dialog.html" %}
 </body>
 </html>
