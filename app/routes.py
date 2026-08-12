@@ -492,8 +492,34 @@ def roulette(request: Request):
                 break
 
     return templates.TemplateResponse(
-        request, "roulette.html", {"item": item, "no_tmdb": False}
+        request,
+        "roulette.html",
+        {"item": item, "no_tmdb": False, "recent": request.session.get("roulette_recent", [])},
     )
+
+
+def _remember_recent_answer(
+    request: Request, media_type: str, tmdb_id: int, title: str, poster_url: str, watched: bool
+) -> None:
+    """Keeps the last few answered items in the session so a misclick
+    ("Not yet" on something actually watched, or vice versa) can be
+    corrected from the roulette page without hunting through history."""
+    recent = [
+        r
+        for r in request.session.get("roulette_recent", [])
+        if not (r["tmdb_id"] == tmdb_id and r["media_type"] == media_type)
+    ]
+    recent.insert(
+        0,
+        {
+            "tmdb_id": tmdb_id,
+            "media_type": media_type,
+            "title": title,
+            "poster_url": poster_url,
+            "watched": watched,
+        },
+    )
+    request.session["roulette_recent"] = recent[:3]
 
 
 @router.post("/roulette/answer")
@@ -509,50 +535,54 @@ def roulette_answer(
     if user is None:
         return RedirectResponse(url="/login", status_code=303)
 
-    if watched == "yes":
-        now = datetime.utcnow()
-        tmdb_media_type = "movie" if media_type == "movie" else "tv"
-        with get_session() as session:
-            integration = get_or_create_manual_integration(session, user.id)
-            history_key = f"roulette:{tmdb_media_type}:{tmdb_id}:{integration.id}"
-            exists = session.scalar(select(WatchHistory.id).where(WatchHistory.history_key == history_key))
-            if exists is None:
-                if media_type == "movie":
-                    session.add(
-                        WatchHistory(
-                            integration_id=integration.id,
-                            history_key=history_key,
-                            item_key=f"tmdb:movie:{tmdb_id}",
-                            grandparent_key=None,
-                            media_type="movie",
-                            title=title,
-                            grandparent_title=None,
-                            season_index=None,
-                            episode_index=None,
-                            poster_url=poster_url or None,
-                            grandparent_poster_url=None,
-                            viewed_at=None,
-                            synced_at=now,
-                        )
-                    )
-                else:
-                    session.add(
-                        WatchHistory(
-                            integration_id=integration.id,
-                            history_key=history_key,
-                            item_key=f"tmdb:show:{tmdb_id}",
-                            grandparent_key=f"tmdb:show:{tmdb_id}",
-                            media_type="episode",
-                            title=title,
-                            grandparent_title=title,
-                            season_index=None,
-                            episode_index=None,
-                            poster_url=poster_url or None,
-                            grandparent_poster_url=poster_url or None,
-                            viewed_at=None,
-                            synced_at=now,
-                        )
-                    )
-                session.commit()
+    now = datetime.utcnow()
+    tmdb_media_type = "movie" if media_type == "movie" else "tv"
+    with get_session() as session:
+        integration = get_or_create_manual_integration(session, user.id)
+        history_key = f"roulette:{tmdb_media_type}:{tmdb_id}:{integration.id}"
+        exists = session.scalar(select(WatchHistory.id).where(WatchHistory.history_key == history_key))
 
+        if watched == "yes" and exists is None:
+            if media_type == "movie":
+                session.add(
+                    WatchHistory(
+                        integration_id=integration.id,
+                        history_key=history_key,
+                        item_key=f"tmdb:movie:{tmdb_id}",
+                        grandparent_key=None,
+                        media_type="movie",
+                        title=title,
+                        grandparent_title=None,
+                        season_index=None,
+                        episode_index=None,
+                        poster_url=poster_url or None,
+                        grandparent_poster_url=None,
+                        viewed_at=None,
+                        synced_at=now,
+                    )
+                )
+            else:
+                session.add(
+                    WatchHistory(
+                        integration_id=integration.id,
+                        history_key=history_key,
+                        item_key=f"tmdb:show:{tmdb_id}",
+                        grandparent_key=f"tmdb:show:{tmdb_id}",
+                        media_type="episode",
+                        title=title,
+                        grandparent_title=title,
+                        season_index=None,
+                        episode_index=None,
+                        poster_url=poster_url or None,
+                        grandparent_poster_url=poster_url or None,
+                        viewed_at=None,
+                        synced_at=now,
+                    )
+                )
+            session.commit()
+        elif watched == "no" and exists is not None:
+            session.execute(delete(WatchHistory).where(WatchHistory.history_key == history_key))
+            session.commit()
+
+    _remember_recent_answer(request, media_type, tmdb_id, title, poster_url, watched == "yes")
     return RedirectResponse(url="/roulette", status_code=303)

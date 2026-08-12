@@ -23,6 +23,15 @@
 
   .empty { color: #9a9ea6; font-size: 14px; text-align: center; margin-top: 60px; }
   .empty a { color: #9fc4ff; }
+
+  .recent { max-width: 480px; margin: 48px auto 0; }
+  .recent h2 { font-size: 13px; color: #9a9ea6; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 12px; text-align: center; }
+  .recent-item { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2a2d33; }
+  .recent-item img { width: 32px; height: 48px; object-fit: cover; border-radius: 3px; background: #1e2126; }
+  .recent-item .title { flex: 1; font-size: 13px; }
+  .recent-item .status { font-size: 11px; color: #9a9ea6; margin-right: 8px; }
+  .recent-item .fix-btn { background: none; border: 1px solid #2a2d33; color: #9a9ea6; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+  .recent-item .fix-btn:hover { color: #e6e6e6; border-color: #4a4e57; }
 </style>
 </head>
 <body>
@@ -60,6 +69,29 @@
         <button type="submit" class="no">Not yet</button>
       </form>
     </div>
+  </div>
+  {% endif %}
+
+  {% if recent %}
+  <div class="recent">
+    <h2>Just answered — tap to fix a misclick</h2>
+    {% for r in recent %}
+    <div class="recent-item">
+      {% if r.poster_url %}
+        <img src="{{ r.poster_url }}" alt="">
+      {% endif %}
+      <div class="title">{{ r.title }}</div>
+      <div class="status">{{ "Watched" if r.watched else "Not watched" }}</div>
+      <form method="post" action="/roulette/answer">
+        <input type="hidden" name="media_type" value="{{ r.media_type }}">
+        <input type="hidden" name="tmdb_id" value="{{ r.tmdb_id }}">
+        <input type="hidden" name="title" value="{{ r.title }}">
+        <input type="hidden" name="poster_url" value="{{ r.poster_url or '' }}">
+        <input type="hidden" name="watched" value="{{ 'no' if r.watched else 'yes' }}">
+        <button type="submit" class="fix-btn">{{ "Mark not watched" if r.watched else "Mark watched" }}</button>
+      </form>
+    </div>
+    {% endfor %}
   </div>
   {% endif %}
 </body>
