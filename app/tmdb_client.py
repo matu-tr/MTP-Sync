@@ -55,14 +55,26 @@ def fetch_full_episode_catalog(api_key: str, show_title: str) -> dict[tuple[int,
         return None
 
 
+MIN_VOTE_COUNT = {"movie": 5000, "tv": 1000}
+
+
 def fetch_random_top_rated(api_key: str, media_type: str) -> dict | None:
-    """media_type: 'movie' or 'tv'. Returns a random title from TMDB's
-    all-time top-rated list, or None on failure."""
+    """media_type: 'movie' or 'tv'. Returns a random title from TMDB,
+    sorted by rating but restricted to titles with a high vote count —
+    this approximates an "IMDb Top 250"-style list of widely-known
+    acclaimed titles, rather than TMDB's plain top_rated endpoint which
+    also surfaces obscure titles with few but highly favorable votes.
+    Returns None on failure."""
     try:
-        page = random.randint(1, 20)
+        page = random.randint(1, 10)
         resp = requests.get(
-            f"{TMDB_API_BASE}/{media_type}/top_rated",
-            params={"api_key": api_key, "page": page},
+            f"{TMDB_API_BASE}/discover/{media_type}",
+            params={
+                "api_key": api_key,
+                "sort_by": "vote_average.desc",
+                "vote_count.gte": MIN_VOTE_COUNT[media_type],
+                "page": page,
+            },
             timeout=10,
         )
         resp.raise_for_status()
