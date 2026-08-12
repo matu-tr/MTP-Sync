@@ -55,13 +55,13 @@ def fetch_full_episode_catalog(api_key: str, show_title: str) -> dict[tuple[int,
         return None
 
 
-def fetch_random_popular(api_key: str, media_type: str) -> dict | None:
+def fetch_random_top_rated(api_key: str, media_type: str) -> dict | None:
     """media_type: 'movie' or 'tv'. Returns a random title from TMDB's
-    popular list, or None on failure."""
+    all-time top-rated list, or None on failure."""
     try:
         page = random.randint(1, 20)
         resp = requests.get(
-            f"{TMDB_API_BASE}/{media_type}/popular",
+            f"{TMDB_API_BASE}/{media_type}/top_rated",
             params={"api_key": api_key, "page": page},
             timeout=10,
         )
@@ -77,5 +77,5 @@ def fetch_random_popular(api_key: str, media_type: str) -> dict | None:
             "poster_url": f"{TMDB_IMAGE_BASE}{poster_path}" if poster_path else None,
         }
     except requests.RequestException:
-        logger.exception("TMDB popular lookup failed for %r", media_type)
+        logger.exception("TMDB top-rated lookup failed for %r", media_type)
         return None

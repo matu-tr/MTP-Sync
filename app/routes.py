@@ -21,7 +21,7 @@ from app.auth import (
 from app.db import get_app_config, get_session, set_tmdb_api_key
 from app.models import Integration, SyncState, WatchHistory
 from app.sync import sync_integration
-from app.tmdb_client import fetch_full_episode_catalog, fetch_random_popular
+from app.tmdb_client import fetch_full_episode_catalog, fetch_random_top_rated
 
 router = APIRouter()
 templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
@@ -471,7 +471,7 @@ def roulette(request: Request):
         integration = get_or_create_manual_integration(session, user.id)
         integration_ids = select(Integration.id).where(Integration.user_id == user.id)
         for _ in range(8):
-            candidate = fetch_random_popular(tmdb_api_key, tmdb_media_type)
+            candidate = fetch_random_top_rated(tmdb_api_key, tmdb_media_type)
             if candidate is None:
                 continue
             history_key = f"roulette:{tmdb_media_type}:{candidate['tmdb_id']}:{integration.id}"

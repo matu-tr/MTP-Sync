@@ -84,7 +84,7 @@ so a manual restart is the dependable way to pick it up.
   deleted from a show's detail page.
 - **Background sync**: APScheduler runs a sync for every integration, across
   all users, every `POLL_INTERVAL_MINUTES`.
-- **Watch Roulette**: suggests a random popular movie/show from TMDB and asks
+- **Watch Roulette**: suggests a random all-time top-rated movie/show from TMDB and asks
   whether you've watched it. A "yes" is recorded under a per-user virtual
   "manual" integration, with no watched date (not knowable for a
   self-reported entry).
