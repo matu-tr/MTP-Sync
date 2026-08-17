@@ -1,15 +1,15 @@
-name: Build and push image
+name: Build and release
 
 on:
   push:
-    branches: [main]
+    tags: ["v*.*.*"]
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
@@ -28,4 +28,8 @@ jobs:
           push: true
           tags: |
             ghcr.io/matu-tr/mtp-sync:latest
-            ghcr.io/matu-tr/mtp-sync:${{ github.sha }}
+            ghcr.io/matu-tr/mtp-sync:${{ github.ref_name }}
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true

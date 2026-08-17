@@ -32,10 +32,11 @@ Integrations page.
 
 ## Image builds
 
-Every push to `main` triggers `.github/workflows/build.yml`, which builds
-the image and pushes it to `ghcr.io/matu-tr/mtp-sync:latest` (and a
-`:<commit-sha>` tag). No manual `docker build` step needed for deployment —
-just push, then pull the new image on the host.
+Pushing a version tag (e.g. `v0.1.0`) triggers `.github/workflows/build.yml`,
+which builds the image, pushes it to `ghcr.io/matu-tr/mtp-sync:latest` (and
+a matching `:vX.Y.Z` tag), and creates a GitHub Release for that tag. No
+manual `docker build` step needed for deployment — just tag and push, then
+pull the new image on the host.
 
 ## Installing as a TrueNAS SCALE Custom App
 
