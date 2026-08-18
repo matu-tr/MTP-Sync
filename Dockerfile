@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY app/ ./app/
 
-ENV DB_PATH=/data/mtpsync.db
+ENV DB_PATH=/data/damgala.db
 VOLUME ["/data"]
 EXPOSE 8000
 

@@ -6,7 +6,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-PRODUCT_NAME = "MTPSync"
+PRODUCT_NAME = "Damgala"
 
 PINS_URL = "https://plex.tv/api/v2/pins"
 ACCOUNT_INFO_URL = "https://plex.tv/api/v2/user"

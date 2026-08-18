@@ -1,7 +1,7 @@
-# MTPSync
+# Damgala
 
 A self-hosted, multi-user web app that tracks your watch history (movies and
-TV shows). You create an MTPSync account and connect one or more watch-history
+TV shows). You create an Damgala account and connect one or more watch-history
 sources ("integrations") — Plex is the first supported one, with more
 services plannable later. No Plex webhook / Plex Pass required; history is
 pulled via periodic polling.
@@ -13,7 +13,7 @@ service — no local Plex Media Server connection needed.
 
 - **Account**: sign up with an email + password, like any normal app.
 - **Integrations**: from the Integrations page, click "Connect Plex" to link
-  a Plex account via Plex's official OAuth (PIN) flow — MTPSync never sees
+  a Plex account via Plex's official OAuth (PIN) flow — Damgala never sees
   or stores your Plex password, only an access token. You can disconnect an
   integration at any time (this also deletes the watch history it supplied).
 - **TMDB API key**: also set from the Integrations page (not an env var) —
@@ -33,14 +33,14 @@ Integrations page.
 ## Image builds
 
 Pushing a version tag (e.g. `v0.1.0`) triggers `.github/workflows/build.yml`,
-which builds the image, pushes it to `ghcr.io/matu-tr/mtp-sync:latest` (and
+which builds the image, pushes it to `ghcr.io/matu-tr/damgala:latest` (and
 a matching `:vX.Y.Z` tag), and creates a GitHub Release for that tag. No
 manual `docker build` step needed for deployment — just tag and push, then
 pull the new image on the host.
 
 ## Installing as a TrueNAS SCALE Custom App
 
-1. **Image**: `ghcr.io/matu-tr/mtp-sync`, tag `latest`. Set Pull Policy to
+1. **Image**: `ghcr.io/matu-tr/damgala`, tag `latest`. Set Pull Policy to
    "Always pull" so restarts pick up newly published images.
 2. **Storage**: in TrueNAS Apps, add an ixVolume (or Host Path Volume)
    mounted at `/data` inside the container. This is where the SQLite
@@ -55,12 +55,31 @@ then restart the app from the TrueNAS Apps page to pull the fresh image —
 Custom Apps don't reliably surface an "Update Available" badge on their own,
 so a manual restart is the dependable way to pick it up.
 
+## Upgrading from MTPSync
+
+This project was renamed from MTPSync to Damgala. Two things moved with it:
+the image is now `ghcr.io/matu-tr/damgala`, and the default database path
+changed from `/data/mtpsync.db` to `/data/damgala.db`.
+
+Your data is not touched by the rename — the volume still holds the same
+SQLite file — but the app looks for the new filename and will otherwise come
+up with an empty database, as if every account and all watch history had
+vanished. Inside the mounted `/data` volume, rename the file once:
+
+```bash
+mv mtpsync.db damgala.db
+```
+
+If `mtpsync.db-wal` / `mtpsync.db-shm` sit next to it, rename those to match.
+If you would rather not touch the file at all, set `DB_PATH=/data/mtpsync.db`
+in the environment instead and the old name keeps working.
+
 ## Configuration (environment variables)
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `POLL_INTERVAL_MINUTES` | no | 15 | How often each integration is synced |
-| `DB_PATH` | no | `/data/mtpsync.db` | SQLite file path |
+| `DB_PATH` | no | `/data/damgala.db` | SQLite file path |
 | `DASHBOARD_PORT` | no | 8000 | Uvicorn listen port |
 | `HISTORY_LOOKBACK_DAYS` | no | 3650 | How far back to backfill on first sync |
 | `LOG_LEVEL` | no | INFO | Python log level |

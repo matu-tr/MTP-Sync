@@ -24,6 +24,6 @@ async def lifespan(app: FastAPI):
     scheduler.shutdown(wait=False)
 
 
-app = FastAPI(title="MTPSync", lifespan=lifespan)
+app = FastAPI(title="Damgala", lifespan=lifespan)
 app.add_middleware(SessionMiddleware, secret_key=app_config.session_secret)
 app.include_router(router)

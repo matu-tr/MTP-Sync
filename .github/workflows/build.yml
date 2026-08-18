@@ -27,8 +27,8 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/matu-tr/mtp-sync:latest
-            ghcr.io/matu-tr/mtp-sync:${{ github.ref_name }}
+            ghcr.io/matu-tr/damgala:latest
+            ghcr.io/matu-tr/damgala:${{ github.ref_name }}
 
       - uses: softprops/action-gh-release@v2
         with:

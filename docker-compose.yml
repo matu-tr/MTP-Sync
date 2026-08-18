@@ -1,12 +1,12 @@
 services:
-  mtpsync:
+  damgala:
     build: .
-    image: ghcr.io/matu-tr/mtp-sync:latest
-    container_name: mtpsync
+    image: ghcr.io/matu-tr/damgala:latest
+    container_name: damgala
     restart: unless-stopped
     environment:
       POLL_INTERVAL_MINUTES: "${POLL_INTERVAL_MINUTES:-15}"
-      DB_PATH: "/data/mtpsync.db"
+      DB_PATH: "/data/damgala.db"
     ports:
       - "8000:8000"
     volumes:
